@@ -28,8 +28,23 @@ Now if you are in the root project folder you can use the requirements files to 
 
     $ pip install -r requirements.txt
 
-If all work well you have the project ready to use
+If all work well you have the project ready to use.
 
+Database Installation
+---------------------
+
+The project have a sql folder with the database dump, this project work only with postgreSQL
+copy the dump file into postgrSQL
+To modify the satabase connections parameters you need to open and modify the ``settings.py` file under the ``app`` folder`::
+
+
+    DATABASE = {
+        "name": "clickcall",
+        "user": "postgres",
+        "password": "mypassword",
+        "host": "localhost",
+        "port": "5432"
+    }
 
 Usage
 -----
