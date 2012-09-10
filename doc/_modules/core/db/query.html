@@ -1,0 +1,154 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>core.db.query &mdash; ClickToCall SkypeTest 0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="ClickToCall SkypeTest 0.0.1 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">ClickToCall SkypeTest 0.0.1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for core.db.query</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;Query Module.</span>
+
+<span class="sd">Contain the class to launch the connection, obtain the database cursor and finally close the DB connection.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">psycopg2</span>
+<span class="kn">import</span> <span class="nn">psycopg2.extras</span>
+<span class="kn">from</span> <span class="nn">app</span> <span class="kn">import</span> <span class="n">settings</span>
+<span class="kn">from</span> <span class="nn">core.db.adapter</span> <span class="kn">import</span> <span class="n">CURRENT_TIMESTAMP_IN</span>
+<span class="kn">from</span> <span class="nn">core.exceptions</span> <span class="kn">import</span> <span class="n">DBConnectionError</span><span class="p">,</span> <span class="n">DBCursorError</span>
+<span class="kn">from</span> <span class="nn">psycopg2.extensions</span> <span class="kn">import</span> <span class="n">register_adapter</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;cingusoft&#39;</span>
+
+
+<span class="k">class</span> <span class="nc">Query</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="Query"><a class="viewcode-back" href="../../../code.html#core.db.query.Query">[docs]</a>    <span class="sd">&quot;&quot;&quot;This class prepare the connection with the database.</span>
+<span class="sd">    is outside the Model class to avoid the python &quot;recursion exceed&quot; problem&quot;.&quot;&quot;&quot;</span>
+
+    <span class="n">_conn</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">_curr</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">setConnection</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Query.setConnection"><a class="viewcode-back" href="../../../code.html#core.db.query.Query.setConnection">[docs]</a>        <span class="sd">&quot;&quot;&quot;Launch the pool PostgreSQL connection.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conn</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conn</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">STRINGSTRIP</span> <span class="o">=</span> <span class="n">psycopg2</span><span class="o">.</span><span class="n">extensions</span><span class="o">.</span><span class="n">new_type</span><span class="p">(</span>
+                            <span class="n">psycopg2</span><span class="o">.</span><span class="n">STRING</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                        <span class="s">&#39;STRINGSTRIP&#39;</span><span class="p">,</span>
+                        <span class="k">lambda</span> <span class="n">value</span><span class="p">,</span> <span class="n">curs</span><span class="p">:</span> <span class="n">value</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+                    <span class="n">psycopg2</span><span class="o">.</span><span class="n">extensions</span><span class="o">.</span><span class="n">register_type</span><span class="p">(</span><span class="n">STRINGSTRIP</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_conn</span><span class="o">=</span><span class="n">psycopg2</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">database</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">DATABASE</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">],</span><span class="n">user</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">DATABASE</span><span class="p">[</span><span class="s">&#39;user&#39;</span><span class="p">],</span><span class="n">password</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">DATABASE</span><span class="p">[</span><span class="s">&#39;password&#39;</span><span class="p">],</span><span class="n">host</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">DATABASE</span><span class="p">[</span><span class="s">&#39;host&#39;</span><span class="p">],</span><span class="n">port</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">DATABASE</span><span class="p">[</span><span class="s">&#39;port&#39;</span><span class="p">])</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">DBConnectionError</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">commit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></div>
+<div class="viewcode-block" id="Query.commit"><a class="viewcode-back" href="../../../code.html#core.db.query.Query.commit">[docs]</a>        <span class="sd">&quot;&quot;&quot;Commit to the database.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">getCursor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></div>
+<div class="viewcode-block" id="Query.getCursor"><a class="viewcode-back" href="../../../code.html#core.db.query.Query.getCursor">[docs]</a>        <span class="sd">&quot;&quot;&quot;Return the databse cursor.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_curr</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_curr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">(</span><span class="n">cursor_factory</span><span class="o">=</span><span class="n">psycopg2</span><span class="o">.</span><span class="n">extras</span><span class="o">.</span><span class="n">RealDictCursor</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">DBCursorError</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_curr</span>
+
+    <span class="k">def</span> <span class="nf">closeCursor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></div>
+<div class="viewcode-block" id="Query.closeCursor"><a class="viewcode-back" href="../../../code.html#core.db.query.Query.closeCursor">[docs]</a>        <span class="sd">&quot;&quot;&quot;Close the Cursors.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_curr</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_curr</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_curr</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span>  <span class="n">e</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">DBCursorError</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">pgerror</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></div>
+        <span class="sd">&quot;&quot;&quot;Class Desctructor&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">ClickToCall SkypeTest 0.0.1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Andrea Mucci.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

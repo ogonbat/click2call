@@ -1,0 +1,308 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>REST API &mdash; ClickToCall SkypeTest 0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ClickToCall SkypeTest 0.0.1 documentation" href="index.html" />
+    <link rel="next" title="Code API" href="code.html" />
+    <link rel="prev" title="Welcome to ClickToCall SkypeTest’s documentation!" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="code.html" title="Code API"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to ClickToCall SkypeTest’s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">ClickToCall SkypeTest 0.0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="rest-api">
+<h1>REST API<a class="headerlink" href="#rest-api" title="Permalink to this headline">¶</a></h1>
+<p>In this section will describe the REST API.</p>
+<div class="section" id="authorization-process">
+<h2>Authorization Process<a class="headerlink" href="#authorization-process" title="Permalink to this headline">¶</a></h2>
+<p>This project use the oAuth 2.0 process ( Draft 31 ).
+The Authentications Flow processes supported are two.</p>
+<blockquote>
+<div><ul class="simple">
+<li>Application Flow</li>
+<li>Client-Side Flow</li>
+</ul>
+</div></blockquote>
+<div class="section" id="application-flow">
+<h3>Application Flow<a class="headerlink" href="#application-flow" title="Permalink to this headline">¶</a></h3>
+<p>This is used if the tester is with a web server application ( php, java, python, ruby, C#, etc.).
+The sequence is described in this image.</p>
+<div class="figure align-center">
+<img alt="_images/appflow.png" src="_images/appflow.png" />
+</div>
+<p>The scenario is redirecting the User-Agent to the login page ( popup etc.).
+The url to call from the Clienti Application is.</p>
+<div class="highlight-python"><pre>GET http://localhost:8888/oauth/auth</pre>
+</div>
+<p>is <strong>Mandatory</strong> add the following parameter to this url</p>
+<blockquote>
+<div><ul class="simple">
+<li><em>client_id</em>: * This is the client id added to the database in the client table *</li>
+</ul>
+<ul class="simple">
+<li><em>response_type</em>: * For the Application Flow this value is <tt class="docutils literal"><span class="pre">code</span></tt> *</li>
+</ul>
+<ul class="simple">
+<li><em>redirect_uri</em>: * This is the redirect uri added into the database in the client table for the client_id *</li>
+<li><em>scope</em>: * The scope in this project is <strong>not processed</strong>, have only one scope and is call *</li>
+</ul>
+</div></blockquote>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p>This project have a test page for the redirect process, this page is</p>
+<p><a class="reference external" href="http://localhost:8888/test">http://localhost:8888/test</a></p>
+<p class="last">this page return the code and the token after the grant process and the token creation!</p>
+</div>
+<p>So, in conclusion the final url for the client auth is.</p>
+<div class="highlight-python"><pre>GET http://localhost:8888/oauth/auth?client_id=&lt;client_id&gt;&amp;response_type=code&amp;redirect_uri=http://localhost:8888/test&amp;scope=call</pre>
+</div>
+<p>After calling this url, the system automatically redirect to the Login-Page, the redirection is a 302 Status Code
+The login Page URL where the User-Agent is redirect is:</p>
+<div class="highlight-python"><pre>GET http://localhost:8888/auth/login?client_id=&lt;client_id&gt;&amp;response_type=code&amp;redirect_uri=http://localhost:8888/test&amp;scope=call</pre>
+</div>
+<p>The page show JSON formatted String with the parameters attached to the URL.
+If the User-Agent is already Logged, the System redirect with a 303 status code to the Grant page.
+If the user is not logged in, is necessary to send a post to the same url, with the <tt class="docutils literal"><span class="pre">username</span></tt> and <tt class="docutils literal"><span class="pre">password</span></tt> parameters.</p>
+<div class="highlight-python"><pre>POST http://localhost:8888/auth/login
+
+body_parms:
+client_id=&lt;client_id&gt;&amp;response_type=code&amp;redirect_uri=http://localhost:8888/test&amp;scope=call&amp;username=&lt;user_username&gt;&amp;password=&lt;user_password&gt;</pre>
+</div>
+<p>If the login is processed correctly, the System redirect to the Grant Page. This is the process that authorize the Application-ID take some information
+of the User-Agent. In a classic project this page show a form with two button, <em>Accept</em> <em>Refuse</em>. In this project is returned a json string with the parameters
+passed to the URL from the login page.
+If the User-Agent never have Grnated the Application-ID must be send a POST to the same url:</p>
+<div class="highlight-python"><pre>POST http://localhost:8888/auth/grant
+
+body_params:
+client_id=&lt;client_id&gt;&amp;response_type=code&amp;redirect_uri=http://localhost:8888/test&amp;scope=call&amp;grant=true</pre>
+</div>
+<p>In this example the User-Agent has sent <tt class="docutils literal"><span class="pre">grant=true</span></tt> so he have accepted the Application Access.
+Now the system redirect to the <tt class="docutils literal"><span class="pre">redirect_uri</span></tt> passed as a parameter.
+<em>if you is used the test page ``http://localhost:8888/test`` you will take the code from the body that show a JSON String.</em>
+The redirect is:</p>
+<div class="highlight-python"><pre>GET http://localhost:8888/test?code=&lt;code&gt;</pre>
+</div>
+<p>After this process will be can take the token with the code returned.
+To obtain the token you need to send a GET to this url and with thsi parameters.</p>
+<div class="highlight-python"><pre>GET http://localhost:8888/oauth/token?client_id=&lt;client_id&gt;&amp;client_secret=&lt;secret_id&gt;&amp;code=&lt;code&gt;&amp;redirect_uri=http://localhost:8888/test&amp;grant_type=authorization_code</pre>
+</div>
+<p>In this URl have one new parameter <tt class="docutils literal"><span class="pre">client_secret</span></tt>. This parameter is one column in the Client Table and is the <em>password</em> for the Application.
+After call this URL, the System will be redirect to the <tt class="docutils literal"><span class="pre">redirect_uri</span></tt> , like the code step, this page show in the body a JSON string with the token code, the redirection is with a 303 status code.
+The url called is:</p>
+<div class="highlight-python"><pre>GET http://localhost:8888/test#access_token=&lt;token&gt;&amp;token_type=Bearer&amp;expires_in=3600</pre>
+</div>
+<p>Now with the token is possible to call the REST Server.</p>
+</div>
+<div class="section" id="client-side-flow">
+<h3>Client-Side Flow<a class="headerlink" href="#client-side-flow" title="Permalink to this headline">¶</a></h3>
+<p>This Flow is practically the same as the Application-Flow. This is used by Javascript Application ( client-side ).
+In the image have the flow view of the process.</p>
+<div class="figure align-center">
+<img alt="_images/flowtwo.png" src="_images/flowtwo.png" />
+</div>
+<p>This process will not request the token from a code authentication.
+the url flow is:</p>
+<div class="highlight-python"><pre>GET http://localhost:8888/oauth/auth?client_id=&lt;client_id&gt;&amp;response_type=token&amp;redirect_uri=http://localhost:8888/test&amp;scope=call</pre>
+</div>
+<p>login redirection:</p>
+<div class="highlight-python"><pre>GET http://localhost:8888/auth/login?client_id=&lt;client_id&gt;&amp;response_type=token&amp;redirect_uri=http://localhost:8888/test&amp;scope=call</pre>
+</div>
+<p>Send the post to login the user:</p>
+<div class="highlight-python"><pre>POST http://localhost:8888/auth/login
+
+body_parms:
+client_id=&lt;client_id&gt;&amp;response_type=token&amp;redirect_uri=http://localhost:8888/test&amp;scope=call&amp;username=&lt;user_username&gt;&amp;password=&lt;user_password&gt;</pre>
+</div>
+<p>grant if is not granted, if the customer is granted will be automatically redirect to the redirect_uri:</p>
+<div class="highlight-python"><pre>POST http://localhost:8888/auth/grant
+
+body_params:
+client_id=&lt;client_id&gt;&amp;response_type=token&amp;redirect_uri=http://localhost:8888/test&amp;scope=call&amp;grant=true</pre>
+</div>
+<p>after this step, the system redirect to the page and send the parameters as:</p>
+<div class="highlight-python"><pre>GET http://localhost:8888/test#access_token=&lt;token&gt;&amp;token_type=Bearer&amp;expires_in=3600</pre>
+</div>
+<p>Now is possible to call the REST Sever</p>
+</div>
+</div>
+<div class="section" id="rest-call-interface">
+<h2>REST Call Interface<a class="headerlink" href="#rest-call-interface" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="howto-send-the-token-for-authentication">
+<h3>HowTo send the token for authentication<a class="headerlink" href="#howto-send-the-token-for-authentication" title="Permalink to this headline">¶</a></h3>
+<p>Is possible to send the token in two methods.
+as a URL parameter:</p>
+<div class="highlight-python"><pre>GET http://localhost:8888/rest/call?access_token=&lt;access_token&gt;</pre>
+</div>
+<p>or in the header:</p>
+<div class="highlight-python"><pre>POST /rest/call HTTP/1.1
+Host: localhost:8888
+User-Agent: PersonalUser-Agent
+Authentication: Bearer &lt;your-token&gt;</pre>
+</div>
+<p>Is important to add the <tt class="docutils literal"><span class="pre">Bearer</span></tt> parameter to stay compliant with the oAuth2 protocol.</p>
+</div>
+<div class="section" id="make-a-call">
+<h3>Make a call<a class="headerlink" href="#make-a-call" title="Permalink to this headline">¶</a></h3>
+<p>Send a POST to this url:</p>
+<div class="highlight-python"><pre>POST http://localhost:8888/rest/call</pre>
+</div>
+<p>The parameter to send in the post is <tt class="docutils literal"><span class="pre">number=&lt;number_to_call</span></tt>
+If all work well you will obtain a status code 201, in the <tt class="docutils literal"><span class="pre">Location</span></tt> header you will obtain the GET URL with the token call to get the call information:</p>
+<div class="highlight-python"><pre>RESPONSE:
+HTTP/1.1 201 OK
+Server: xLightweb/2.6
+Content-Length: 0
+Location: http://localhost:8888/rest/call?token_call=&lt;token_call&gt;
+Content-Type: application/x-www-form-urlencoded</pre>
+</div>
+</div>
+<div class="section" id="stop-a-call">
+<h3>Stop a Call<a class="headerlink" href="#stop-a-call" title="Permalink to this headline">¶</a></h3>
+<p>Send a PUT to this url:</p>
+<div class="highlight-python"><pre>PUT http://localhost:8888/rest/call</pre>
+</div>
+<p>And in the PUT body this parameter:</p>
+<div class="highlight-python"><pre>token_call=&lt;token_call&gt;</pre>
+</div>
+<p>This method return a status code 200</p>
+</div>
+<div class="section" id="get-call-info">
+<h3>Get Call info<a class="headerlink" href="#get-call-info" title="Permalink to this headline">¶</a></h3>
+<p>To get informations about a call you need to send a GET request:</p>
+<div class="highlight-python"><pre>GET http://localhost:8888/rest/call?token_call=&lt;token_call&gt;</pre>
+</div>
+<p>Yu will obtain a JSON string or a xml string with the call information. if have some problems will return 409 error Conflict</p>
+</div>
+<div class="section" id="get-all-ongoing-calls">
+<h3>Get All Ongoing Calls<a class="headerlink" href="#get-all-ongoing-calls" title="Permalink to this headline">¶</a></h3>
+<p>To get all ongoing calls you need to send a GET to this url whitout any parameter:</p>
+<div class="highlight-python"><pre>GET http://localhost:8888/rest/call</pre>
+</div>
+<p>The result is a JSON or a XML string with all the ongoing calls for the logged user.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">REST API</a><ul>
+<li><a class="reference internal" href="#authorization-process">Authorization Process</a><ul>
+<li><a class="reference internal" href="#application-flow">Application Flow</a></li>
+<li><a class="reference internal" href="#client-side-flow">Client-Side Flow</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#rest-call-interface">REST Call Interface</a><ul>
+<li><a class="reference internal" href="#howto-send-the-token-for-authentication">HowTo send the token for authentication</a></li>
+<li><a class="reference internal" href="#make-a-call">Make a call</a></li>
+<li><a class="reference internal" href="#stop-a-call">Stop a Call</a></li>
+<li><a class="reference internal" href="#get-call-info">Get Call info</a></li>
+<li><a class="reference internal" href="#get-all-ongoing-calls">Get All Ongoing Calls</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Welcome to ClickToCall SkypeTest&#8217;s documentation!</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="code.html"
+                        title="next chapter">Code API</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/rest.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="code.html" title="Code API"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to ClickToCall SkypeTest’s documentation!"
+             >previous</a> |</li>
+        <li><a href="index.html">ClickToCall SkypeTest 0.0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Andrea Mucci.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

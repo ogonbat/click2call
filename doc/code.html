@@ -1,0 +1,698 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Code API &mdash; ClickToCall SkypeTest 0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ClickToCall SkypeTest 0.0.1 documentation" href="index.html" />
+    <link rel="prev" title="REST API" href="rest.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="rest.html" title="REST API"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">ClickToCall SkypeTest 0.0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="code-api">
+<h1>Code API<a class="headerlink" href="#code-api" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="database-models">
+<h2>Database Models<a class="headerlink" href="#database-models" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-core.db.base">
+<span id="base-class"></span><h3>Base Class<a class="headerlink" href="#module-core.db.base" title="Permalink to this headline">¶</a></h3>
+<p>Module for the Base Database Model Class.</p>
+<dl class="class">
+<dt id="core.db.base.ModelBase">
+<em class="property">class </em><tt class="descclassname">core.db.base.</tt><tt class="descname">ModelBase</tt><big>(</big><em>**kw</em><big>)</big><a class="reference internal" href="_modules/core/db/base.html#ModelBase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.db.base.ModelBase" title="Permalink to this definition">¶</a></dt>
+<dd><p>ModelBase Class.
+Offer basic method for generic queries.</p>
+<dl class="method">
+<dt id="core.db.base.ModelBase.get">
+<tt class="descname">get</tt><big>(</big><em>**kw</em><big>)</big><a class="reference internal" href="_modules/core/db/base.html#ModelBase.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.db.base.ModelBase.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Select Query.
+If the query don&#8217;t return a value raise a ObjectDoesNotExist.
+THis method is used to obtain One RowSet.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="core.db.base.ModelBase.insert">
+<tt class="descname">insert</tt><big>(</big><em>**kw</em><big>)</big><a class="reference internal" href="_modules/core/db/base.html#ModelBase.insert"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.db.base.ModelBase.insert" title="Permalink to this definition">¶</a></dt>
+<dd><p>INSERT Query.
+The <a href="#id1"><span class="problematic" id="id2">**</span></a>kw correspind to the column name and instance the attributes automatically.
+Generate a correspondent INSERT Query without preconfigured SQL String.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="core.db.base.ModelBase.sql">
+<tt class="descname">sql</tt><big>(</big><em>sql</em>, <em>values</em>, <em>fetch=None</em>, <em>multiple=None</em><big>)</big><a class="reference internal" href="_modules/core/db/base.html#ModelBase.sql"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.db.base.ModelBase.sql" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generic SQL Method.</p>
+<p><strong>ARGS</strong>
+* <em>sql:</em> SQL String preformatted
+* <em>value:</em> dictionary with the values
+* <em>fetch:</em> if is not None the sql return One Row Result
+* <em>miltiple:</em> if is not None the sql return a Dictionary of Rows.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="core.db.base.ModelBase.where">
+<tt class="descname">where</tt><big>(</big><em>**kw</em><big>)</big><a class="reference internal" href="_modules/core/db/base.html#ModelBase.where"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.db.base.ModelBase.where" title="Permalink to this definition">¶</a></dt>
+<dd><p>WHERE Query.
+Preformat a WHERE instance for the queries.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-app.models">
+<span id="derived-classes"></span><h3>Derived Classes<a class="headerlink" href="#module-app.models" title="Permalink to this headline">¶</a></h3>
+<p>Click To Call Database Models</p>
+<dl class="class">
+<dt id="app.models.Call">
+<em class="property">class </em><tt class="descclassname">app.models.</tt><tt class="descname">Call</tt><big>(</big><em>**kw</em><big>)</big><a class="reference internal" href="_modules/app/models.html#Call"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.models.Call" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call Table Model.
+<strong>Args:</strong></p>
+<ul class="simple">
+<li><em>duration:</em> Call time duration, if not set return the ongoin call time</li>
+<li><em>number:</em> Number called from the User-Agent</li>
+<li><em>token:</em> Call token identifier for the Rest Server</li>
+<li><em>start:</em> Timestamp indicate the time start of the call</li>
+<li><em>endc:</em> Timestamp indicate the time end of the call</li>
+<li><em>grant_id:</em> Reference to Grant Table &lt;foreign key&gt;.</li>
+</ul>
+<dl class="method">
+<dt id="app.models.Call.check_allowed_calls">
+<tt class="descname">check_allowed_calls</tt><big>(</big><em>token</em>, <em>max_number</em><big>)</big><a class="reference internal" href="_modules/app/models.html#Call.check_allowed_calls"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.models.Call.check_allowed_calls" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if the User-Agent can start others calls.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.models.Call.duration">
+<tt class="descname">duration</tt><em class="property"> = None</em><a class="headerlink" href="#app.models.Call.duration" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="app.models.Call.getAllCalls">
+<tt class="descname">getAllCalls</tt><big>(</big><em>token_user</em><big>)</big><a class="reference internal" href="_modules/app/models.html#Call.getAllCalls"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.models.Call.getAllCalls" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a List with all the User-agent Ongoing Calls.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.models.Call.getCallInfo">
+<tt class="descname">getCallInfo</tt><big>(</big><em>token_call</em>, <em>token_user</em><big>)</big><a class="reference internal" href="_modules/app/models.html#Call.getCallInfo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.models.Call.getCallInfo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a Dictionary with a specific call.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.models.Call.getDuration">
+<tt class="descname">getDuration</tt><big>(</big><em>start</em><big>)</big><a class="reference internal" href="_modules/app/models.html#Call.getDuration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.models.Call.getDuration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the seconds difference between the start call and the actual time.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.models.Call.id">
+<tt class="descname">id</tt><em class="property"> = None</em><a class="headerlink" href="#app.models.Call.id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="app.models.Call.number">
+<tt class="descname">number</tt><em class="property"> = None</em><a class="headerlink" href="#app.models.Call.number" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="app.models.Call.start_call">
+<tt class="descname">start_call</tt><big>(</big><em>client_id</em>, <em>number</em><big>)</big><a class="reference internal" href="_modules/app/models.html#Call.start_call"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.models.Call.start_call" title="Permalink to this definition">¶</a></dt>
+<dd><p>Query insert to add a new call.
+We use the timestamp of posgreSQL.
+Return the token call.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.models.Call.update">
+<tt class="descname">update</tt><big>(</big><em>token</em><big>)</big><a class="reference internal" href="_modules/app/models.html#Call.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.models.Call.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update select, used to stop a call and add End Time Call and the Call Duration.
+Used CURRENT_TIMESTAMP.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="app.models.Client">
+<em class="property">class </em><tt class="descclassname">app.models.</tt><tt class="descname">Client</tt><big>(</big><em>**kw</em><big>)</big><a class="reference internal" href="_modules/app/models.html#Client"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.models.Client" title="Permalink to this definition">¶</a></dt>
+<dd><p>Client Table Model.</p>
+<p><strong>Args:</strong></p>
+<ul class="simple">
+<li><em>client_id:</em> The unique Client ID, is not the token &lt;primary key&gt;</li>
+<li><em>secret:</em> Password secret used during the Application Flow</li>
+<li><em>redirect_uri:</em> This is the uri checked during the Client Autorization process, in classic REST apps have more than one redirect uri.</li>
+</ul>
+<dl class="method">
+<dt id="app.models.Client.authenticate">
+<tt class="descname">authenticate</tt><big>(</big><em>client_id</em>, <em>client_secret</em>, <em>code</em><big>)</big><a class="reference internal" href="_modules/app/models.html#Client.authenticate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.models.Client.authenticate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check the correspondence between the clien_id, the secret password and the code.</p>
+<p>If the query return a empty value a ObjectDoesNotExist is raised.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.models.Client.client_id">
+<tt class="descname">client_id</tt><em class="property"> = None</em><a class="headerlink" href="#app.models.Client.client_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="app.models.Client.redirect_uri">
+<tt class="descname">redirect_uri</tt><em class="property"> = None</em><a class="headerlink" href="#app.models.Client.redirect_uri" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="app.models.Client.secret">
+<tt class="descname">secret</tt><em class="property"> = None</em><a class="headerlink" href="#app.models.Client.secret" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="app.models.Grant">
+<em class="property">class </em><tt class="descclassname">app.models.</tt><tt class="descname">Grant</tt><big>(</big><em>**kw</em><big>)</big><a class="reference internal" href="_modules/app/models.html#Grant"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.models.Grant" title="Permalink to this definition">¶</a></dt>
+<dd><p>Grant Table Model.</p>
+<blockquote>
+<div><strong>Args:</strong></div></blockquote>
+<ul class="simple">
+<li><em>token:</em> The unique Token obtained after the Grant process</li>
+<li><em>code:</em> Token used durign the Application Flow Authentication</li>
+<li><em>refresh:</em> Timestamp that indicate the token refresh time</li>
+<li><em>client_id:</em> Reference to Client Table &lt;foreign key&gt;</li>
+<li><em>user_id:</em> Reference to User-Agent Table &lt;foreign key&gt;.</li>
+</ul>
+<dl class="method">
+<dt id="app.models.Grant.add">
+<tt class="descname">add</tt><big>(</big><em>client_id</em>, <em>username</em><big>)</big><a class="reference internal" href="_modules/app/models.html#Grant.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.models.Grant.add" title="Permalink to this definition">¶</a></dt>
+<dd><p>Insert Query for grant table.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.models.Grant.client_id">
+<tt class="descname">client_id</tt><a class="reference internal" href="_modules/app/models.html#Grant.client_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.models.Grant.client_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Getter for the client id.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.models.Grant.code">
+<tt class="descname">code</tt><em class="property"> = None</em><a class="headerlink" href="#app.models.Grant.code" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="app.models.Grant.expire">
+<tt class="descname">expire</tt><a class="reference internal" href="_modules/app/models.html#Grant.expire"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.models.Grant.expire" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="app.models.Grant.id">
+<tt class="descname">id</tt><em class="property"> = None</em><a class="headerlink" href="#app.models.Grant.id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="app.models.Grant.is_already_authorized">
+<tt class="descname">is_already_authorized</tt><big>(</big><em>client_id</em>, <em>username</em><big>)</big><a class="reference internal" href="_modules/app/models.html#Grant.is_already_authorized"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.models.Grant.is_already_authorized" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if the client_id and the user-agent are linked.</p>
+<p>If result is 0 raise a ObjectDoesNotExist.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.models.Grant.is_token_expired">
+<tt class="descname">is_token_expired</tt><big>(</big><em>token</em><big>)</big><a class="reference internal" href="_modules/app/models.html#Grant.is_token_expired"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.models.Grant.is_token_expired" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if the toke is expired.
+Is used the CURRENT_TIMESTAMP::abstime::int::bigint of PostgresSQL.
+This reduce the problem caused by Python to configure correct timezone.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.models.Grant.token">
+<tt class="descname">token</tt><em class="property"> = None</em><a class="headerlink" href="#app.models.Grant.token" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="app.models.Grant.update">
+<tt class="descname">update</tt><big>(</big><em>client_id</em>, <em>username</em><big>)</big><a class="reference internal" href="_modules/app/models.html#Grant.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.models.Grant.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update Query for the grant table.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.models.Grant.user_id">
+<tt class="descname">user_id</tt><a class="reference internal" href="_modules/app/models.html#Grant.user_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.models.Grant.user_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Getter for the user id.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="app.models.User">
+<em class="property">class </em><tt class="descclassname">app.models.</tt><tt class="descname">User</tt><big>(</big><em>**kw</em><big>)</big><a class="reference internal" href="_modules/app/models.html#User"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.models.User" title="Permalink to this definition">¶</a></dt>
+<dd><p>Store User-Agent informations.</p>
+<blockquote>
+<div><strong>Args:</strong></div></blockquote>
+<ul class="simple">
+<li><em>username:</em> Username user &lt;primary key&gt;</li>
+<li><em>password:</em> Password user.</li>
+</ul>
+<dl class="method">
+<dt id="app.models.User.authenticate">
+<tt class="descname">authenticate</tt><big>(</big><em>username</em>, <em>password</em><big>)</big><a class="reference internal" href="_modules/app/models.html#User.authenticate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.models.User.authenticate" title="Permalink to this definition">¶</a></dt>
+<dd><p>authenticate method.</p>
+<p>if the authentication query fail raise a ObjectDoesNotExist.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.models.User.password">
+<tt class="descname">password</tt><em class="property"> = None</em><a class="headerlink" href="#app.models.User.password" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="app.models.User.username">
+<tt class="descname">username</tt><em class="property"> = None</em><a class="headerlink" href="#app.models.User.username" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-core.db.query">
+<span id="generic-classes"></span><h3>Generic Classes<a class="headerlink" href="#module-core.db.query" title="Permalink to this headline">¶</a></h3>
+<p>Query Module.</p>
+<p>Contain the class to launch the connection, obtain the database cursor and finally close the DB connection.</p>
+<dl class="class">
+<dt id="core.db.query.Query">
+<em class="property">class </em><tt class="descclassname">core.db.query.</tt><tt class="descname">Query</tt><a class="reference internal" href="_modules/core/db/query.html#Query"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.db.query.Query" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class prepare the connection with the database.
+is outside the Model class to avoid the python &#8220;recursion exceed&#8221; problem&#8221;.</p>
+<dl class="method">
+<dt id="core.db.query.Query.closeCursor">
+<tt class="descname">closeCursor</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/core/db/query.html#Query.closeCursor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.db.query.Query.closeCursor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Close the Cursors.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="core.db.query.Query.commit">
+<tt class="descname">commit</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/core/db/query.html#Query.commit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.db.query.Query.commit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Commit to the database.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="core.db.query.Query.getCursor">
+<tt class="descname">getCursor</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/core/db/query.html#Query.getCursor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.db.query.Query.getCursor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the databse cursor.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="core.db.query.Query.setConnection">
+<tt class="descname">setConnection</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/core/db/query.html#Query.setConnection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.db.query.Query.setConnection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Launch the pool PostgreSQL connection.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="http-handler-classes">
+<h2>Http Handler Classes<a class="headerlink" href="#http-handler-classes" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-core.http.handler">
+<span id="base-classes"></span><h3>Base Classes<a class="headerlink" href="#module-core.http.handler" title="Permalink to this headline">¶</a></h3>
+<p>Module for Generic Hanlders.
+In this module have all the handlers used during the Autorizathion, Authentication and the REST Call processes.</p>
+<dl class="class">
+<dt id="core.http.handler.BaseHandler">
+<em class="property">class </em><tt class="descclassname">core.http.handler.</tt><tt class="descname">BaseHandler</tt><big>(</big><em>application</em>, <em>request</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/core/http/handler.html#BaseHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.http.handler.BaseHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base Class for all the Handlers.</p>
+<dl class="method">
+<dt id="core.http.handler.BaseHandler.initialize">
+<tt class="descname">initialize</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/core/http/handler.html#BaseHandler.initialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.http.handler.BaseHandler.initialize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method called before the flush().
+Preconfigure the Server Header and check the Accept Header.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="core.http.handler.BaseHandler.write_result">
+<tt class="descname">write_result</tt><big>(</big><em>object</em>, <em>objname=None</em><big>)</big><a class="reference internal" href="_modules/core/http/handler.html#BaseHandler.write_result"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.http.handler.BaseHandler.write_result" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write to the buffer the object paramenter
+with the global attribute self._rest_accept check if the Client Accept XML or JSON.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="core.http.handler.BaseOAuthHandler">
+<em class="property">class </em><tt class="descclassname">core.http.handler.</tt><tt class="descname">BaseOAuthHandler</tt><big>(</big><em>application</em>, <em>request</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/core/http/handler.html#BaseOAuthHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.http.handler.BaseOAuthHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handler used during the Authentication/Authorization Process.</p>
+<dl class="method">
+<dt id="core.http.handler.BaseOAuthHandler.get_current_user">
+<tt class="descname">get_current_user</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/core/http/handler.html#BaseOAuthHandler.get_current_user"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.http.handler.BaseOAuthHandler.get_current_user" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if the User-Agent is logged and decript the secret cookie.
+The value returned is the client username, the cookie is crypted with an hashtag.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="core.http.handler.RestHandler">
+<em class="property">class </em><tt class="descclassname">core.http.handler.</tt><tt class="descname">RestHandler</tt><big>(</big><em>application</em>, <em>request</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/core/http/handler.html#RestHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.http.handler.RestHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hanlder used during the Rest Calls.</p>
+<dl class="method">
+<dt id="core.http.handler.RestHandler.initialize">
+<tt class="descname">initialize</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/core/http/handler.html#RestHandler.initialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.http.handler.RestHandler.initialize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method that override the initialize BaseHandler method.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="core.http.handler.RestHandler.prepare">
+<tt class="descname">prepare</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/core/http/handler.html#RestHandler.prepare"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.http.handler.RestHandler.prepare" title="Permalink to this definition">¶</a></dt>
+<dd><p>Override the prepare RequestHandler method.
+Check if the Client send correct token and if the token need refresh.
+Support the Authorization Header check or the GET access_token.
+if the Client don&#8217;t send a Token or the token is incorrect this method flush a 403 HTTP Error.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="authentication-derived-classes">
+<h3>Authentication Derived Classes<a class="headerlink" href="#authentication-derived-classes" title="Permalink to this headline">¶</a></h3>
+<p class="graphviz">
+digraph inheritance4a3d21ce58 {
+rankdir=LR;
+ratio=compress;
+fontsize=14;
+size=&quot;6.0, 8.0&quot;;
+  &quot;app.oauth.client.auth.AuthHandler&quot; [shape=ellipse,URL=&quot;#app.oauth.client.auth.AuthHandler&quot;,fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,fontsize=14,color=dodgerblue1,style=filled,height=0.75];
+  &quot;core.http.handler.BaseOAuthHandler&quot; -&gt; &quot;app.oauth.client.auth.AuthHandler&quot; [arrowsize=0.5,style=&quot;setlinewidth(0.5)&quot;];
+  &quot;tornado.web.RequestHandler&quot; [shape=ellipse,fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,fontsize=14,color=dodgerblue1,style=filled,height=0.75];
+  &quot;core.http.handler.BaseHandler&quot; [shape=ellipse,URL=&quot;#core.http.handler.BaseHandler&quot;,fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,fontsize=14,color=dodgerblue1,style=filled,height=0.75];
+  &quot;tornado.web.RequestHandler&quot; -&gt; &quot;core.http.handler.BaseHandler&quot; [arrowsize=0.5,style=&quot;setlinewidth(0.5)&quot;];
+  &quot;core.http.handler.BaseOAuthHandler&quot; [shape=ellipse,URL=&quot;#core.http.handler.BaseOAuthHandler&quot;,fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,fontsize=14,color=dodgerblue1,style=filled,height=0.75];
+  &quot;core.http.handler.BaseHandler&quot; -&gt; &quot;core.http.handler.BaseOAuthHandler&quot; [arrowsize=0.5,style=&quot;setlinewidth(0.5)&quot;];
+}
+</p>
+<span class="target" id="module-app.oauth.client.auth"></span><p>Module for the Authorization Client Handler.</p>
+<dl class="class">
+<dt id="app.oauth.client.auth.AuthHandler">
+<em class="property">class </em><tt class="descclassname">app.oauth.client.auth.</tt><tt class="descname">AuthHandler</tt><big>(</big><em>application</em>, <em>request</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/app/oauth/client/auth.html#AuthHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.oauth.client.auth.AuthHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is the first handler called during the Authentication/Authorization process.</p>
+<dl class="method">
+<dt id="app.oauth.client.auth.AuthHandler.get">
+<tt class="descname">get</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/app/oauth/client/auth.html#AuthHandler.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.oauth.client.auth.AuthHandler.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>This Method check if the Application Client exist, if yes redirect to the login page.
+In Case something goes wrong the Handler return a 400 status code if the Client Id does not exist and 400 if the parameters send are not correct.</p>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-app.oauth.auth.login"></span><p>Module with Login Handler.</p>
+<dl class="class">
+<dt id="app.oauth.auth.login.LoginHandler">
+<em class="property">class </em><tt class="descclassname">app.oauth.auth.login.</tt><tt class="descname">LoginHandler</tt><big>(</big><em>application</em>, <em>request</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/app/oauth/auth/login.html#LoginHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.oauth.auth.login.LoginHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>This Hanlder start the login process.
+is supported the GET and the POST method.</p>
+<dl class="method">
+<dt id="app.oauth.auth.login.LoginHandler.get">
+<tt class="descname">get</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/app/oauth/auth/login.html#LoginHandler.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.oauth.auth.login.LoginHandler.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is the login web page.
+In this Test is not active the web user interface, in a production solution this will be the HTML page that show the
+login access.
+if the used is logged in, this page redirect automatically to the Grant Handler.
+If the user is nto logged, the page return a Statis Code 200 and a JSON string with basic informations.
+For an automatized Test process, the returned JSON string is usefoult to take all the parameter ant send a POST to login the User-Agent.
+To Log the User-Agent will be send a POST to the same URL with username and password parameters.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.oauth.auth.login.LoginHandler.post">
+<tt class="descname">post</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/app/oauth/auth/login.html#LoginHandler.post"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.oauth.auth.login.LoginHandler.post" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is the POST to start the login process.
+all the parameters are Mandatory
+if the login is succesfull the page redirect to the Grant page.
+Is necesarry to add username and password parameters to the POST body.
+the redirect is with a status code 303.
+if the username and the password are not correct, the page raise a 403 error.</p>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-app.oauth.auth.grant"></span><p>Grant Module Handler.</p>
+<dl class="class">
+<dt id="app.oauth.auth.grant.GrantHandler">
+<em class="property">class </em><tt class="descclassname">app.oauth.auth.grant.</tt><tt class="descname">GrantHandler</tt><big>(</big><em>application</em>, <em>request</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/app/oauth/auth/grant.html#GrantHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.oauth.auth.grant.GrantHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>GET and POST are permitted.
+This handler grant the Client Application.
+In all the methods is checked the redirect_uri and the client_id sended.
+In Error case the Handler return 403 error with a String body description.
+The redirection process in with 303 to avoid the redirect problem after a POST.</p>
+<dl class="method">
+<dt id="app.oauth.auth.grant.GrantHandler.get">
+<tt class="descname">get</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/app/oauth/auth/grant.html#GrantHandler.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.oauth.auth.grant.GrantHandler.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is the form where the user accept or denied the access to the Application Client.
+In this test the form is not returned.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.oauth.auth.grant.GrantHandler.post">
+<tt class="descname">post</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/app/oauth/auth/grant.html#GrantHandler.post"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.oauth.auth.grant.GrantHandler.post" title="Permalink to this definition">¶</a></dt>
+<dd><p>POST action to authorize the Client Application.
+To authorize will be send a POST with &#8216;grant&#8217; parameter set to true, to deny &#8216;parameter&#8217; set to false.</p>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-app.oauth.auth.token"></span><p>Token Module Handler.</p>
+<dl class="class">
+<dt id="app.oauth.auth.token.TokenHandler">
+<em class="property">class </em><tt class="descclassname">app.oauth.auth.token.</tt><tt class="descname">TokenHandler</tt><big>(</big><em>application</em>, <em>request</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/app/oauth/auth/token.html#TokenHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.oauth.auth.token.TokenHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>This Handler is used only for the Appllication Flow.
+we use a get to check the code and return the token, and and expire.</p>
+<dl class="method">
+<dt id="app.oauth.auth.token.TokenHandler.get">
+<tt class="descname">get</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/app/oauth/auth/token.html#TokenHandler.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.oauth.auth.token.TokenHandler.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get method.
+return the token and the refresh if all the parameters passed are correct.</p>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-app.oauth.auth.logout"></span><p>Module with the Logout Handler</p>
+<dl class="class">
+<dt id="app.oauth.auth.logout.LogOutHandler">
+<em class="property">class </em><tt class="descclassname">app.oauth.auth.logout.</tt><tt class="descname">LogOutHandler</tt><big>(</big><em>application</em>, <em>request</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/app/oauth/auth/logout.html#LogOutHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.oauth.auth.logout.LogOutHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Logout Handler</p>
+<dl class="method">
+<dt id="app.oauth.auth.logout.LogOutHandler.get">
+<tt class="descname">get</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/app/oauth/auth/logout.html#LogOutHandler.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.oauth.auth.logout.LogOutHandler.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>The Logout process in handled with a GET Method.
+The logout delete the secret cookie.
+If all work well the logout return a 200 status code and a message in JSON format.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-app.oauth.client.call">
+<span id="rest-derived-classes"></span><h3>REST Derived Classes<a class="headerlink" href="#module-app.oauth.client.call" title="Permalink to this headline">¶</a></h3>
+<p>Call Module, this is the REST Handler.</p>
+<dl class="class">
+<dt id="app.oauth.client.call.CallHandler">
+<em class="property">class </em><tt class="descclassname">app.oauth.client.call.</tt><tt class="descname">CallHandler</tt><big>(</big><em>application</em>, <em>request</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/app/oauth/client/call.html#CallHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.oauth.client.call.CallHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call Handler.
+All the methos in this class permit to add, modify and check the calls.</p>
+<dl class="method">
+<dt id="app.oauth.client.call.CallHandler.get">
+<tt class="descname">get</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/app/oauth/client/call.html#CallHandler.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.oauth.client.call.CallHandler.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method is called with a GET.
+Without parameter return a list of ongoin call of the User-Agent.
+With the token_call parameter set, this method return the specific call information.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.oauth.client.call.CallHandler.post">
+<tt class="descname">post</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/app/oauth/client/call.html#CallHandler.post"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.oauth.client.call.CallHandler.post" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method POST to add a new call on ongoing status.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.oauth.client.call.CallHandler.put">
+<tt class="descname">put</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/app/oauth/client/call.html#CallHandler.put"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.oauth.client.call.CallHandler.put" title="Permalink to this definition">¶</a></dt>
+<dd><p>PUT method to udpate the status of the call, in this case is stop the call and actualize the end time and the duration</p>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-app.oauth.client.test"></span><p>Module for the test redirect page</p>
+<dl class="class">
+<dt id="app.oauth.client.test.TestHandler">
+<em class="property">class </em><tt class="descclassname">app.oauth.client.test.</tt><tt class="descname">TestHandler</tt><big>(</big><em>application</em>, <em>request</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/app/oauth/client/test.html#TestHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.oauth.client.test.TestHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>This handler have a get method that return the code or the token after the redirect form grant or token page.</p>
+<dl class="method">
+<dt id="app.oauth.client.test.TestHandler.get">
+<tt class="descname">get</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/app/oauth/client/test.html#TestHandler.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#app.oauth.client.test.TestHandler.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>GET method that return the Code or the Token send by the Grant or the Token page.
+The returned value is a json string.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="exception-classes">
+<h2>Exception Classes<a class="headerlink" href="#exception-classes" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-core.exceptions">
+<span id="exceptions"></span><h3>Exceptions<a class="headerlink" href="#module-core.exceptions" title="Permalink to this headline">¶</a></h3>
+<p>Exception Module for Custome Errors</p>
+<dl class="exception">
+<dt id="core.exceptions.DBConnectionError">
+<em class="property">exception </em><tt class="descclassname">core.exceptions.</tt><tt class="descname">DBConnectionError</tt><a class="reference internal" href="_modules/core/exceptions.html#DBConnectionError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.exceptions.DBConnectionError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception used to raise a Database Connection Error.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="core.exceptions.DBCursorError">
+<em class="property">exception </em><tt class="descclassname">core.exceptions.</tt><tt class="descname">DBCursorError</tt><a class="reference internal" href="_modules/core/exceptions.html#DBCursorError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.exceptions.DBCursorError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception used to raise a Cursor Connection Error.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="core.exceptions.DBQueryError">
+<em class="property">exception </em><tt class="descclassname">core.exceptions.</tt><tt class="descname">DBQueryError</tt><a class="reference internal" href="_modules/core/exceptions.html#DBQueryError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.exceptions.DBQueryError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception used to raise a Query Connection Error.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="core.exceptions.GenericException">
+<em class="property">exception </em><tt class="descclassname">core.exceptions.</tt><tt class="descname">GenericException</tt><a class="reference internal" href="_modules/core/exceptions.html#GenericException"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.exceptions.GenericException" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="core.exceptions.GrantNotAuthorized">
+<em class="property">exception </em><tt class="descclassname">core.exceptions.</tt><tt class="descname">GrantNotAuthorized</tt><a class="reference internal" href="_modules/core/exceptions.html#GrantNotAuthorized"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.exceptions.GrantNotAuthorized" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception used to raise a grant error.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="core.exceptions.ObjectDoesNotExist">
+<em class="property">exception </em><tt class="descclassname">core.exceptions.</tt><tt class="descname">ObjectDoesNotExist</tt><a class="reference internal" href="_modules/core/exceptions.html#ObjectDoesNotExist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.exceptions.ObjectDoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception used to except if the query return a value or not.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="core.exceptions.RestMaxCallError">
+<em class="property">exception </em><tt class="descclassname">core.exceptions.</tt><tt class="descname">RestMaxCallError</tt><a class="reference internal" href="_modules/core/exceptions.html#RestMaxCallError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#core.exceptions.RestMaxCallError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception used to raise the maximum ongoing call permitted.</p>
+</dd></dl>
+
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Code API</a><ul>
+<li><a class="reference internal" href="#database-models">Database Models</a><ul>
+<li><a class="reference internal" href="#module-core.db.base">Base Class</a></li>
+<li><a class="reference internal" href="#module-app.models">Derived Classes</a></li>
+<li><a class="reference internal" href="#module-core.db.query">Generic Classes</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#http-handler-classes">Http Handler Classes</a><ul>
+<li><a class="reference internal" href="#module-core.http.handler">Base Classes</a></li>
+<li><a class="reference internal" href="#authentication-derived-classes">Authentication Derived Classes</a></li>
+<li><a class="reference internal" href="#module-app.oauth.client.call">REST Derived Classes</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#exception-classes">Exception Classes</a><ul>
+<li><a class="reference internal" href="#module-core.exceptions">Exceptions</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="rest.html"
+                        title="previous chapter">REST API</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/code.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="rest.html" title="REST API"
+             >previous</a> |</li>
+        <li><a href="index.html">ClickToCall SkypeTest 0.0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Andrea Mucci.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,137 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>app.oauth.client.auth &mdash; ClickToCall SkypeTest 0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="top" title="ClickToCall SkypeTest 0.0.1 documentation" href="../../../../index.html" />
+    <link rel="up" title="Module code" href="../../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">ClickToCall SkypeTest 0.0.1 documentation</a> &raquo;</li>
+          <li><a href="../../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for app.oauth.client.auth</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;Module for the Authorization Client Handler.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">urllib</span>
+<span class="kn">from</span> <span class="nn">core.exceptions</span> <span class="kn">import</span> <span class="n">ObjectDoesNotExist</span>
+<span class="kn">from</span> <span class="nn">core.http.handler</span> <span class="kn">import</span> <span class="n">BaseOAuthHandler</span>
+<span class="kn">from</span> <span class="nn">app.models</span> <span class="kn">import</span>  <span class="n">Client</span>
+<span class="kn">import</span> <span class="nn">tornado.web</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;cingusoft&#39;</span>
+
+
+
+<span class="k">class</span> <span class="nc">AuthHandler</span><span class="p">(</span><span class="n">BaseOAuthHandler</span><span class="p">):</span>
+<div class="viewcode-block" id="AuthHandler"><a class="viewcode-back" href="../../../../code.html#app.oauth.client.auth.AuthHandler">[docs]</a>    <span class="sd">&quot;&quot;&quot;This is the first handler called during the Authentication/Authorization process.&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="AuthHandler.get"><a class="viewcode-back" href="../../../../code.html#app.oauth.client.auth.AuthHandler.get">[docs]</a>        <span class="sd">&quot;&quot;&quot;This Method check if the Application Client exist, if yes redirect to the login page.</span>
+<span class="sd">        In Case something goes wrong the Handler return a 400 status code if the Client Id does not exist and 400 if the parameters send are not correct.&quot;&quot;&quot;</span>
+        <span class="n">client_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_argument</span><span class="p">(</span><span class="s">&quot;client_id&quot;</span><span class="p">)</span>
+        <span class="n">response_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_argument</span><span class="p">(</span><span class="s">&quot;response_type&quot;</span><span class="p">)</span>
+        <span class="n">redirect_uri</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_argument</span><span class="p">(</span><span class="s">&quot;redirect_uri&quot;</span><span class="p">)</span>
+        <span class="n">scope</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_argument</span><span class="p">(</span><span class="s">&quot;scope&quot;</span><span class="p">)</span>
+
+        <span class="c"># before check if the client pass client_id, redirect_url and response_type</span>
+        <span class="c"># we accept only token &quot;Implicit Grant Flow&quot;</span>
+        <span class="c"># if all is ok we need to check if the client_id and the redirect_uri are correct</span>
+        <span class="c"># if not we return a 403 to the client</span>
+        <span class="k">if</span> <span class="n">response_type</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&quot;token&quot;</span><span class="p">,</span><span class="s">&quot;code&quot;</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">client_check</span> <span class="o">=</span> <span class="n">Client</span><span class="p">()</span>
+                <span class="n">exist</span> <span class="o">=</span> <span class="n">client_check</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">client_id</span><span class="o">=</span><span class="n">client_id</span><span class="p">)</span>
+                <span class="c">#check the redirect_uri parameter</span>
+                <span class="k">if</span> <span class="n">exist</span><span class="p">[</span><span class="s">&#39;redirect_uri&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">redirect_uri</span><span class="p">:</span>
+                    <span class="c">#have an error, return a 403</span>
+                    <span class="k">raise</span> <span class="n">tornado</span><span class="o">.</span><span class="n">web</span><span class="o">.</span><span class="n">HTTPError</span><span class="p">(</span><span class="mi">403</span><span class="p">,</span><span class="s">&quot;redirect uri problem&quot;</span><span class="p">)</span>
+                <span class="c"># redirect to login page</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">redirect</span><span class="p">((</span><span class="s">&quot;/auth/login?client_id=</span><span class="si">%s</span><span class="s">&amp;response_type=</span><span class="si">%s</span><span class="s">&amp;redirect_uri=</span><span class="si">%s</span><span class="s">&amp;scope=</span><span class="si">%s</span><span class="s">&quot;</span><span class="p">)</span><span class="o">%</span><span class="p">(</span><span class="n">client_id</span><span class="p">,</span>
+                                                                                                      <span class="n">response_type</span><span class="p">,</span>
+                                                                                                      <span class="n">urllib</span><span class="o">.</span><span class="n">quote_plus</span><span class="p">(</span><span class="n">redirect_uri</span><span class="p">),</span>
+                                                                                                      <span class="n">scope</span><span class="p">))</span>
+            <span class="k">except</span> <span class="n">ObjectDoesNotExist</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">tornado</span><span class="o">.</span><span class="n">web</span><span class="o">.</span><span class="n">HTTPError</span><span class="p">(</span><span class="mi">403</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">tornado</span><span class="o">.</span><span class="n">web</span><span class="o">.</span><span class="n">HTTPError</span><span class="p">(</span><span class="mi">400</span><span class="p">,</span><span class="s">&quot;The accepted values for response type are token or code&quot;</span><span class="p">)</span>
+</pre></div></div></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">ClickToCall SkypeTest 0.0.1 documentation</a> &raquo;</li>
+          <li><a href="../../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Andrea Mucci.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

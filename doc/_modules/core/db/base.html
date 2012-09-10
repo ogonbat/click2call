@@ -1,0 +1,246 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>core.db.base &mdash; ClickToCall SkypeTest 0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="ClickToCall SkypeTest 0.0.1 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">ClickToCall SkypeTest 0.0.1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for core.db.base</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;Module for the Base Database Model Class.&quot;&quot;&quot;</span>
+
+
+<span class="kn">from</span> <span class="nn">_sha512</span> <span class="kn">import</span> <span class="n">sha512</span>
+<span class="kn">from</span> <span class="nn">uuid</span> <span class="kn">import</span> <span class="n">uuid4</span>
+<span class="kn">from</span> <span class="nn">psycopg2._psycopg</span> <span class="kn">import</span> <span class="n">IntegrityError</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">app.settings</span> <span class="kn">import</span> <span class="n">OAUTH2_ACCESS_TOKEN_LENGTH</span>
+<span class="kn">from</span> <span class="nn">core.db.query</span> <span class="kn">import</span> <span class="n">Query</span>
+
+<span class="kn">from</span> <span class="nn">core.exceptions</span> <span class="kn">import</span> <span class="n">DBQueryError</span><span class="p">,</span> <span class="n">ObjectDoesNotExist</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;cingusoft&#39;</span>
+
+<span class="k">class</span> <span class="nc">ModelBase</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="ModelBase"><a class="viewcode-back" href="../../../code.html#core.db.base.ModelBase">[docs]</a>    <span class="sd">&quot;&quot;&quot;ModelBase Class.</span>
+<span class="sd">    Offer basic method for generic queries.&quot;&quot;&quot;</span>
+    <span class="n">_conn</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">_where_string</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">_where_value</span><span class="o">=</span><span class="p">[]</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;charge the methos class&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">kname</span><span class="p">,</span><span class="n">kvalue</span> <span class="ow">in</span> <span class="n">kw</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span><span class="n">kname</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="n">kname</span><span class="p">]</span><span class="o">.</span><span class="n">val</span> <span class="o">=</span> <span class="n">kvalue</span>
+
+    <span class="k">def</span> <span class="nf">sql</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">sql</span><span class="p">,</span><span class="n">values</span><span class="p">,</span><span class="n">fetch</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span><span class="n">multiple</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="ModelBase.sql"><a class="viewcode-back" href="../../../code.html#core.db.base.ModelBase.sql">[docs]</a>        <span class="sd">&quot;&quot;&quot;Generic SQL Method.</span>
+
+<span class="sd">        **ARGS**</span>
+<span class="sd">        * *sql:* SQL String preformatted</span>
+<span class="sd">        * *value:* dictionary with the values</span>
+<span class="sd">        * *fetch:* if is not None the sql return One Row Result</span>
+<span class="sd">        * *miltiple:* if is not None the sql return a Dictionary of Rows.&quot;&quot;&quot;</span>
+
+        <span class="n">conn</span> <span class="o">=</span> <span class="n">Query</span><span class="p">()</span>
+        <span class="n">conn</span><span class="o">.</span><span class="n">setConnection</span><span class="p">()</span>
+        <span class="n">curr</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">getCursor</span><span class="p">()</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">curr</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sql</span><span class="p">,</span><span class="n">values</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">multiple</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">results</span> <span class="o">=</span> <span class="n">curr</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">fetch</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">results</span> <span class="o">=</span> <span class="n">curr</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+        <span class="k">except</span> <span class="n">IntegrityError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">DBQueryError</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+
+            <span class="c">#check if have some result</span>
+        <span class="k">if</span> <span class="n">curr</span><span class="o">.</span><span class="n">rowcount</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ObjectDoesNotExist</span><span class="p">()</span>
+        <span class="n">conn</span><span class="o">.</span><span class="n">closeCursor</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">results</span>
+
+
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="o">**</span><span class="n">kw</span><span class="p">):</span></div>
+<div class="viewcode-block" id="ModelBase.get"><a class="viewcode-back" href="../../../code.html#core.db.base.ModelBase.get">[docs]</a>        <span class="sd">&quot;&quot;&quot;Select Query.</span>
+<span class="sd">        If the query don&#39;t return a value raise a ObjectDoesNotExist.</span>
+<span class="sd">        THis method is used to obtain One RowSet.&quot;&quot;&quot;</span>
+        <span class="n">conn</span> <span class="o">=</span> <span class="n">Query</span><span class="p">()</span>
+        <span class="n">conn</span><span class="o">.</span><span class="n">setConnection</span><span class="p">()</span>
+
+        <span class="n">dataValues</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">([(</span><span class="n">column</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">column</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">kw</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()])</span>
+
+        <span class="n">keys</span> <span class="o">=</span> <span class="n">dataValues</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="p">[</span> <span class="n">dataValues</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">]</span>
+        <span class="n">sqlString</span> <span class="o">=</span> <span class="s">&#39;SELECT * FROM &quot;{table}&quot; WHERE {where};&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span>
+            <span class="n">where</span> <span class="o">=</span> <span class="s">&quot; AND &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">key</span><span class="o">+</span><span class="s">&quot;=</span><span class="si">%s</span><span class="s">&quot;</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">curr</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">getCursor</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">curr</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sqlString</span><span class="p">,</span><span class="n">values</span><span class="p">)</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="n">curr</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+        <span class="k">except</span> <span class="n">IntegrityError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">DBQueryError</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="c">#check if have some result</span>
+        <span class="k">if</span> <span class="n">curr</span><span class="o">.</span><span class="n">rowcount</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ObjectDoesNotExist</span><span class="p">()</span>
+        <span class="n">conn</span><span class="o">.</span><span class="n">closeCursor</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">results</span>
+
+
+    <span class="k">def</span> <span class="nf">where</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="o">**</span><span class="n">kw</span><span class="p">):</span></div>
+<div class="viewcode-block" id="ModelBase.where"><a class="viewcode-back" href="../../../code.html#core.db.base.ModelBase.where">[docs]</a>        <span class="sd">&quot;&quot;&quot;WHERE Query.</span>
+<span class="sd">        Preformat a WHERE instance for the queries.&quot;&quot;&quot;</span>
+        <span class="n">dataValues</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">([(</span><span class="n">column</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">column</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">kw</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()])</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="n">dataValues</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="p">[</span> <span class="n">dataValues</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">]</span>
+        <span class="n">whereString</span> <span class="o">=</span> <span class="s">&#39;WHERE {where}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">where</span> <span class="o">=</span> <span class="s">&quot; AND &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">key</span><span class="o">+</span><span class="s">&quot;=</span><span class="si">%s</span><span class="s">&quot;</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_where_string</span> <span class="o">=</span> <span class="n">whereString</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_where_value</span> <span class="o">=</span> <span class="n">values</span>
+
+    <span class="k">def</span> <span class="nf">insert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="o">**</span><span class="n">kw</span><span class="p">):</span></div>
+<div class="viewcode-block" id="ModelBase.insert"><a class="viewcode-back" href="../../../code.html#core.db.base.ModelBase.insert">[docs]</a>        <span class="sd">&quot;&quot;&quot;INSERT Query.</span>
+<span class="sd">        The **kw correspind to the column name and instance the attributes automatically.</span>
+<span class="sd">        Generate a correspondent INSERT Query without preconfigured SQL String.&quot;&quot;&quot;</span>
+        <span class="n">conn</span> <span class="o">=</span> <span class="n">Query</span><span class="p">()</span>
+        <span class="n">conn</span><span class="o">.</span><span class="n">setConnection</span><span class="p">()</span>
+        <span class="n">dataValues</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">([(</span><span class="n">column</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">column</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">kw</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()])</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="n">dataValues</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="p">[</span> <span class="n">dataValues</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">]</span>
+        <span class="n">sqlString</span> <span class="o">=</span> <span class="s">&#39;INSERT INTO &quot;{table}&quot;({ins_key}) VALUES ({ins_values});&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span>
+            <span class="n">ins_key</span> <span class="o">=</span> <span class="s">&quot; , &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">),</span>
+            <span class="n">ins_values</span> <span class="o">=</span> <span class="s">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">&quot;</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">curr</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">getCursor</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">curr</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sqlString</span><span class="p">,</span><span class="n">values</span><span class="p">)</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="k">except</span> <span class="n">IntegrityError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">DBQueryError</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="c">#check if have some result</span>
+        <span class="n">conn</span><span class="o">.</span><span class="n">closeCursor</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="o">**</span><span class="n">kw</span><span class="p">):</span></div>
+        <span class="sd">&quot;&quot;&quot;UPDATE Query.</span>
+<span class="sd">        Like insert generate a preconfigured sql string and quote the values.</span>
+<span class="sd">        Check if a preconfigured WHERE string is preformatted and charge it to the query update.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_where_string</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">DBQueryError</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+
+        <span class="n">conn</span> <span class="o">=</span> <span class="n">Query</span><span class="p">()</span>
+        <span class="n">conn</span><span class="o">.</span><span class="n">setConnection</span><span class="p">()</span>
+
+        <span class="n">dataValues</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">([(</span><span class="n">column</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">column</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">kw</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()])</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="n">dataValues</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="p">[</span> <span class="n">dataValues</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">]</span>
+        <span class="n">sqlString</span> <span class="o">=</span> <span class="s">&#39;UPDATE &quot;{table}&quot; SET {set} {where};&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span>
+            <span class="nb">set</span> <span class="o">=</span> <span class="s">&quot; , &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">key</span><span class="o">+</span><span class="s">&quot;=</span><span class="si">%s</span><span class="s">&quot;</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">),</span>
+            <span class="n">where</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_where_string</span>
+        <span class="p">)</span>
+        <span class="n">final_values</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="n">values</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_where_value</span><span class="p">],</span> <span class="p">[])</span>
+        <span class="n">curr</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">getCursor</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">curr</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sqlString</span><span class="p">,</span><span class="n">final_values</span><span class="p">)</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="k">except</span> <span class="n">IntegrityError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">DBQueryError</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="c">#check if have some result</span>
+        <span class="n">conn</span><span class="o">.</span><span class="n">closeCursor</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_genHashString</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Method outside the Database to Genrate HashString for Code and Token values.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">sha512</span><span class="p">(</span><span class="n">uuid4</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span><span class="p">)</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()[</span><span class="mi">0</span><span class="p">:</span><span class="n">OAUTH2_ACCESS_TOKEN_LENGTH</span><span class="p">]</span>
+</pre></div></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">ClickToCall SkypeTest 0.0.1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Andrea Mucci.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

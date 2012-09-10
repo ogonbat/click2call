@@ -1,0 +1,222 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>core.http.handler &mdash; ClickToCall SkypeTest 0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="ClickToCall SkypeTest 0.0.1 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">ClickToCall SkypeTest 0.0.1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for core.http.handler</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot; Module for Generic Hanlders.</span>
+<span class="sd">In this module have all the handlers used during the Autorizathion, Authentication and the REST Call processes.&quot;&quot;&quot;</span>
+
+
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">tornado.web</span>
+<span class="kn">import</span> <span class="nn">tornado.escape</span>
+<span class="kn">from</span> <span class="nn">app.models</span> <span class="kn">import</span> <span class="n">Grant</span>
+<span class="kn">from</span> <span class="nn">core.exceptions</span> <span class="kn">import</span> <span class="n">ObjectDoesNotExist</span>
+<span class="kn">from</span> <span class="nn">core.utils</span> <span class="kn">import</span> <span class="n">General</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;cingusoft&#39;</span>
+
+
+<span class="k">class</span> <span class="nc">BaseHandler</span><span class="p">(</span><span class="n">tornado</span><span class="o">.</span><span class="n">web</span><span class="o">.</span><span class="n">RequestHandler</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseHandler"><a class="viewcode-back" href="../../../code.html#core.http.handler.BaseHandler">[docs]</a>    <span class="sd">&quot;&quot;&quot;Base Class for all the Handlers.&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseHandler.initialize"><a class="viewcode-back" href="../../../code.html#core.http.handler.BaseHandler.initialize">[docs]</a>        <span class="sd">&quot;&quot;&quot;Method called before the flush().</span>
+<span class="sd">        Preconfigure the Server Header and check the Accept Header.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_header</span><span class="p">(</span><span class="s">&quot;Server&quot;</span><span class="p">,</span><span class="s">&quot;Skype ClickToCall Server&quot;</span><span class="p">)</span>
+        <span class="n">general</span> <span class="o">=</span> <span class="n">General</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rest_accepted</span> <span class="o">=</span> <span class="n">general</span><span class="o">.</span><span class="n">getHeadersAccepted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">write_result</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="nb">object</span><span class="p">,</span><span class="n">objname</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span></div>
+<div class="viewcode-block" id="BaseHandler.write_result"><a class="viewcode-back" href="../../../code.html#core.http.handler.BaseHandler.write_result">[docs]</a>        <span class="sd">&quot;&quot;&quot;Write to the buffer the object paramenter</span>
+<span class="sd">        with the global attribute self._rest_accept check if the Client Accept XML or JSON.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest_accepted</span> <span class="o">==</span> <span class="s">&quot;xml&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__write_xml</span><span class="p">(</span><span class="nb">object</span><span class="p">,</span><span class="n">objname</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__write_json</span><span class="p">(</span><span class="nb">object</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">__write_xml</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="nb">object</span><span class="p">,</span><span class="n">objname</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span></div>
+        <span class="sd">&quot;&quot;&quot;Used during the XML String generation.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_header</span><span class="p">(</span><span class="s">&quot;Content-Type&quot;</span><span class="p">,</span><span class="s">&quot;text/xml;application/xml&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_write_buffer</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__getXML_dict</span><span class="p">(</span><span class="nb">object</span><span class="p">,</span><span class="n">objname</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">__write_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="nb">object</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;method used during the JSON string generation.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_header</span><span class="p">(</span><span class="s">&quot;Content-Type&quot;</span><span class="p">,</span><span class="s">&quot;application/json&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_write_buffer</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="nb">object</span><span class="p">,</span><span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">__getXML</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="nb">object</span><span class="p">,</span><span class="n">objname</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;return the XML formatted string.</span>
+<span class="sd">        Accept List or Dictionary.&quot;&quot;&quot;</span>
+        <span class="n">xmlString</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">object</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s">&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">objname</span><span class="p">:</span>
+            <span class="n">objname</span> <span class="o">=</span> <span class="s">&quot;clicktocall&quot;</span>
+        <span class="n">adapt</span><span class="o">=</span><span class="p">{</span>
+            <span class="nb">dict</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__getXML_dict</span><span class="p">,</span>
+            <span class="nb">list</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__getXML_list</span><span class="p">,</span>
+            <span class="nb">tuple</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__getXML_list</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="k">if</span> <span class="n">adapt</span><span class="o">.</span><span class="n">has_key</span><span class="p">(</span><span class="nb">object</span><span class="o">.</span><span class="n">__class__</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">adapt</span><span class="p">[</span><span class="nb">object</span><span class="o">.</span><span class="n">__class__</span><span class="p">](</span><span class="nb">object</span><span class="p">,</span> <span class="n">objname</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">xmlString</span> <span class="o">=</span> <span class="s">&quot;&lt;</span><span class="si">%(n)s</span><span class="s">&gt;</span><span class="si">%(o)s</span><span class="s">&lt;/</span><span class="si">%(n)s</span><span class="s">&gt;&quot;</span><span class="o">%</span><span class="p">{</span><span class="s">&#39;n&#39;</span><span class="p">:</span><span class="n">objname</span><span class="p">,</span><span class="s">&#39;o&#39;</span><span class="p">:</span><span class="nb">str</span><span class="p">(</span><span class="nb">object</span><span class="p">)}</span>
+        <span class="k">return</span> <span class="n">xmlString</span>
+
+    <span class="k">def</span> <span class="nf">__getXML_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">indict</span><span class="p">,</span> <span class="n">objname</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;method used to parse the dictionary for the XML String Generation.&quot;&quot;&quot;</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="s">&quot;&lt;</span><span class="si">%s</span><span class="s">&gt;&quot;</span><span class="o">%</span><span class="n">objname</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">indict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">h</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__getXML</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="s">&quot;&lt;/</span><span class="si">%s</span><span class="s">&gt;&quot;</span><span class="o">%</span><span class="n">objname</span>
+        <span class="k">return</span> <span class="n">h</span>
+
+    <span class="k">def</span> <span class="nf">__getXML_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">inlist</span><span class="p">,</span> <span class="n">objname</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;method used to parse the list for the XML String Generation.&quot;&quot;&quot;</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">inlist</span><span class="p">:</span>
+            <span class="n">h</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__getXML</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">objname</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">h</span>
+
+<span class="k">class</span> <span class="nc">BaseOAuthHandler</span><span class="p">(</span><span class="n">BaseHandler</span><span class="p">):</span></div>
+<div class="viewcode-block" id="BaseOAuthHandler"><a class="viewcode-back" href="../../../code.html#core.http.handler.BaseOAuthHandler">[docs]</a>    <span class="sd">&quot;&quot;&quot;Handler used during the Authentication/Authorization Process.&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">get_current_user</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseOAuthHandler.get_current_user"><a class="viewcode-back" href="../../../code.html#core.http.handler.BaseOAuthHandler.get_current_user">[docs]</a>        <span class="sd">&quot;&quot;&quot;Check if the User-Agent is logged and decript the secret cookie.</span>
+<span class="sd">        The value returned is the client username, the cookie is crypted with an hashtag.&quot;&quot;&quot;</span>
+        <span class="n">user_json</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_secure_cookie</span><span class="p">(</span><span class="s">&quot;clkcallagent&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">user_json</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">user_json</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">None</span>
+
+<span class="k">class</span> <span class="nc">RestHandler</span><span class="p">(</span><span class="n">BaseHandler</span><span class="p">):</span></div></div>
+<div class="viewcode-block" id="RestHandler"><a class="viewcode-back" href="../../../code.html#core.http.handler.RestHandler">[docs]</a>    <span class="sd">&quot;&quot;&quot;Hanlder used during the Rest Calls.&quot;&quot;&quot;</span>
+    <span class="n">_grant_token</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="RestHandler.initialize"><a class="viewcode-back" href="../../../code.html#core.http.handler.RestHandler.initialize">[docs]</a>        <span class="sd">&quot;&quot;&quot;Method that override the initialize BaseHandler method.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_header</span><span class="p">(</span><span class="s">&quot;Server&quot;</span><span class="p">,</span><span class="s">&quot;Skype ClickToCall Server&quot;</span><span class="p">)</span>
+        <span class="n">general</span> <span class="o">=</span> <span class="n">General</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rest_accepted</span> <span class="o">=</span> <span class="n">general</span><span class="o">.</span><span class="n">getHeadersAccepted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></div>
+<div class="viewcode-block" id="RestHandler.prepare"><a class="viewcode-back" href="../../../code.html#core.http.handler.RestHandler.prepare">[docs]</a>        <span class="sd">&quot;&quot;&quot;Override the prepare RequestHandler method.</span>
+<span class="sd">        Check if the Client send correct token and if the token need refresh.</span>
+<span class="sd">        Support the Authorization Header check or the GET access_token.</span>
+<span class="sd">        if the Client don&#39;t send a Token or the token is incorrect this method flush a 403 HTTP Error.&quot;&quot;&quot;</span>
+
+        <span class="n">token</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="c">#frst we check if the authentication token is send by the Autorization header</span>
+        <span class="k">if</span> <span class="s">&#39;Authorization&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="p">:</span>
+            <span class="n">auth_header</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s">&#39;Authorization&#39;</span><span class="p">]</span>
+            <span class="c">#the authentication token is send like Bearer &lt;token&gt;</span>
+            <span class="c">#we need to split the string and obtain the token</span>
+            <span class="n">header_parts</span> <span class="o">=</span> <span class="n">auth_header</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39; &#39;</span><span class="p">)</span>
+            <span class="n">token</span> <span class="o">=</span> <span class="n">header_parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;access_token&#39;</span><span class="p">):</span>
+            <span class="n">token</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;access_token&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">tornado</span><span class="o">.</span><span class="n">web</span><span class="o">.</span><span class="n">HTTPError</span><span class="p">(</span><span class="mi">403</span><span class="p">,</span><span class="s">&quot;not authorized, no token send&quot;</span><span class="p">)</span>
+
+        <span class="c">#check if the token is correct</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">grant</span> <span class="o">=</span> <span class="n">Grant</span><span class="p">()</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="n">grant</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">token</span><span class="o">=</span><span class="n">token</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">ObjectDoesNotExist</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">tornado</span><span class="o">.</span><span class="n">web</span><span class="o">.</span><span class="n">HTTPError</span><span class="p">(</span><span class="mi">403</span><span class="p">,</span><span class="s">&quot;invalid authorization token incorrect&quot;</span><span class="p">)</span>
+        <span class="c">#check the refresh</span>
+        <span class="n">time_remain</span> <span class="o">=</span> <span class="n">grant</span><span class="o">.</span><span class="n">is_token_expired</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">time_remain</span><span class="p">[</span><span class="s">&#39;expiration&#39;</span><span class="p">])</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">tornado</span><span class="o">.</span><span class="n">web</span><span class="o">.</span><span class="n">HTTPError</span><span class="p">(</span><span class="mi">403</span><span class="p">,</span><span class="s">&quot;token expired&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_grant_token</span> <span class="o">=</span> <span class="n">token</span>
+</pre></div></div></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">ClickToCall SkypeTest 0.0.1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Andrea Mucci.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
